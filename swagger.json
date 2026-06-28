@@ -1,0 +1,428 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Bank Transaction UPI Summary & Categorization API",
+    "description": "RESTful API for managing bank transactions with automated categorization and cashback detection",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@banktransaction.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Transactions",
+      "description": "Transaction management endpoints"
+    },
+    {
+      "name": "Categories",
+      "description": "Category summary endpoints"
+    },
+    {
+      "name": "Statistics",
+      "description": "Overall statistics endpoints"
+    }
+  ],
+  "paths": {
+    "/transactions": {
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "Get all transactions",
+        "description": "Retrieves all transactions sorted by timestamp (newest first)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Transaction"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Add new transaction",
+        "description": "Creates a new transaction with automatic categorization and cashback detection",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewTransaction"
+              },
+              "examples": {
+                "foodTransaction": {
+                  "summary": "Food transaction",
+                  "value": {
+                    "description": "Paid Rs. 250 to Zomato",
+                    "amount": -250
+                  }
+                },
+                "cashbackTransaction": {
+                  "summary": "Transaction with cashback",
+                  "value": {
+                    "description": "Paid Rs. 500 to Amazon with Cashback offer",
+                    "amount": -500
+                  }
+                },
+                "salaryTransaction": {
+                  "summary": "Salary credit",
+                  "value": {
+                    "description": "Received Rs. 50000 from Tech Solutions Pvt Ltd",
+                    "amount": 50000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transaction created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions/{id}": {
+      "put": {
+        "tags": ["Transactions"],
+        "summary": "Update transaction category",
+        "description": "Updates the category of a specific transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Transaction ID",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategory"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get category summaries",
+        "description": "Retrieves aggregated statistics for each transaction category",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CategorySummary"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "Get overall statistics",
+        "description": "Retrieves overall financial statistics including income, expense, balance, and savings",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/OverallStats"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique transaction identifier",
+            "example": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "Transaction description",
+            "example": "Paid Rs. 250 to Zomato"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Transaction amount (negative for expense, positive for income)",
+            "example": -250
+          },
+          "category": {
+            "type": "string",
+            "description": "Transaction category",
+            "enum": [
+              "Food & Dining",
+              "Travel",
+              "Salary",
+              "Shopping",
+              "Entertainment",
+              "Utilities",
+              "Miscellaneous"
+            ],
+            "example": "Food & Dining"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction timestamp in ISO 8601 format",
+            "example": "2024-06-28T12:00:00.000Z"
+          },
+          "hasCashback": {
+            "type": "boolean",
+            "description": "Whether transaction has cashback/reward",
+            "example": false
+          },
+          "expectedSavings": {
+            "type": "number",
+            "description": "Expected savings amount (10% of transaction)",
+            "example": 0
+          }
+        },
+        "required": ["id", "description", "amount", "category", "timestamp", "hasCashback"]
+      },
+      "NewTransaction": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Transaction description with merchant name",
+            "example": "Paid Rs. 250 to Zomato"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Transaction amount (negative for expense, positive for income)",
+            "example": -250
+          }
+        },
+        "required": ["description", "amount"]
+      },
+      "UpdateCategory": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "New category for the transaction",
+            "enum": [
+              "Food & Dining",
+              "Travel",
+              "Salary",
+              "Shopping",
+              "Entertainment",
+              "Utilities",
+              "Miscellaneous"
+            ],
+            "example": "Food & Dining"
+          }
+        },
+        "required": ["category"]
+      },
+      "CategorySummary": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Category name",
+            "example": "Food & Dining"
+          },
+          "totalSpent": {
+            "type": "number",
+            "description": "Total amount spent in this category",
+            "example": 250
+          },
+          "totalReceived": {
+            "type": "number",
+            "description": "Total amount received in this category",
+            "example": 0
+          },
+          "transactionCount": {
+            "type": "integer",
+            "description": "Number of transactions in this category",
+            "example": 1
+          },
+          "netAmount": {
+            "type": "number",
+            "description": "Net amount (received - spent)",
+            "example": -250
+          }
+        }
+      },
+      "OverallStats": {
+        "type": "object",
+        "properties": {
+          "totalIncome": {
+            "type": "number",
+            "description": "Total income from all transactions",
+            "example": 1200
+          },
+          "totalExpense": {
+            "type": "number",
+            "description": "Total expenses from all transactions",
+            "example": 900
+          },
+          "netBalance": {
+            "type": "number",
+            "description": "Net balance (income - expense)",
+            "example": 300
+          },
+          "totalCashbackSavings": {
+            "type": "number",
+            "description": "Total expected savings from cashback transactions",
+            "example": 50
+          },
+          "transactionCount": {
+            "type": "integer",
+            "description": "Total number of transactions",
+            "example": 4
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid request body"
+          }
+        }
+      }
+    }
+  }
+}
